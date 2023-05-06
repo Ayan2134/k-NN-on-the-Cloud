@@ -13,11 +13,14 @@ def check_prime(num) :
     return flag
 def prime_factorisation(num) :
     prime_factors=[]
-    for i in range(2,num+1) :
-        if num%i==0 and check_prime(i) :
-            while num%i ==0 :
-                prime_factors.append(i)
-                num=num/i
+    if num < 2 :
+        return prime_factors
+    else :
+        for i in range(2,num+1) :
+            if num%i==0 and check_prime(i) :
+                while num%i ==0 :
+                    prime_factors.append(i)
+                    num=num/i
     return prime_factors
 
 with socket.socket(socket.AF_INET , socket.SOCK_STREAM) as s :
