@@ -29,3 +29,9 @@ K digit prime :
     On running the code with python Enter the number of digits you want in the primes 'p' and 'k'.
     Then the suitable coefficients for 'p' and 'q' will be printed in the format of (p,q,a,b) .
 
+Carmichael Numbers :
+
+    I have used is_prime() and euler_phi() function from sagemath as I used the fact that the definition condition of Euler Totient theorem is satisfied by euler_phi()
+    as well as n-1. 
+
+    On running the code Enter the number till which carmichael numbers are to be printed .This will print the carmichael numbers less than and equal to that number.
