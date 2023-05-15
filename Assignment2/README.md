@@ -14,7 +14,8 @@ Cloud :
 
 Amicable Numbers :
 
-    I have used the sigma() function of SageMath here which takes two arguments one for the number and second for the power of its divisors for the sum of them all. Amicable numbers are pair of numbers whose sum of divisors is equal to the second number and vica versa.
+    I have used the sigma() function of SageMath here which takes two arguments one for the number and second for the power of its divisors for the sum of them all.
+    Amicable numbers are pair of numbers whose sum of divisors is equal to the second number and vica versa.
     The code transverses through the numbers until the counter 'num' = index (10 in this case) and check the sum of divisors for each number and their corresponding result of sigma().
 
     On running the code with python first 10 amicable numbers will be printed.
@@ -22,7 +23,8 @@ Amicable Numbers :
 
 K digit prime :
     
-    I have used random_prime(upper_bound , proof_status , lower_bound) function from sagemath to generate two random prime numbers 'p' and 'q' of given digits 'k'. Then i have declared a function solver() to recursively solve my a*p + b*q = 1 equation. Then printed the results some comments have been provided in the code to give reason for certain steps.
+    I have used random_prime(upper_bound , proof_status , lower_bound) function from sagemath to generate two random prime numbers 'p' and 'q' of given digits 'k'.
+    Then i have declared a function solver() to recursively solve my a*p + b*q = 1 equation. Then printed the results some comments have been provided in the code to give reason for certain steps.
 
     On running the code with python Enter the number of digits you want in the primes 'p' and 'k'.
     Then the suitable coefficients for 'p' and 'q' will be printed in the format of (p,q,a,b) .
