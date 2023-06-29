@@ -1,3 +1,5 @@
+#Paillier Encryption
+
 from sage.all import*
 import random
 class paillier :
@@ -31,17 +33,21 @@ class paillier :
                 if int(gcd(r,n)) == 1:
                     break
             ciphertext=pow(g,message,n**2)*pow(r,n,n**2)
+            ciphertext=hex(ciphertext)[2:]
+            if len(ciphertext)%2!=0 :
+                ciphertext='0'+ciphertext
+            ciphertext=bytes.fromhex(ciphertext)
             return ciphertext
-        else :
-            return "error"
         
-    def decrypt(self,ciphertext) :
-        if ciphertext!="error" :
-            L_decrypt=(pow(ciphertext,self.prk,self.n**2)-1)//self.n
-            de_message=mod(L_decrypt*self.meu , self.n)
-            hex_message=hex(de_message)[2:]
-            byte_val=bytes.fromhex(hex_message)
-            return byte_val
         else :
             return "error"
-    
+    def decrypt(self,ciphertext) :
+        ciphertext=ciphertext.hex()
+        ciphertext=int(ciphertext,16)
+        L_decrypt=(pow(ciphertext,self.prk,self.n**2)-1)//self.n
+        de_message=mod(L_decrypt*self.meu , self.n)
+        hex_message=hex(de_message)[2:]
+        if len(hex_message)%2!=0 :
+            hex_message='0'+hex_message
+        byte_val=bytes.fromhex(hex_message)
+        return byte_val
