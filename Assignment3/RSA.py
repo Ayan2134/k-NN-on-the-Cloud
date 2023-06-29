@@ -1,3 +1,5 @@
+#RSA Encryption
+
 from sage.all import*
 class rsa :
     def __init__ (self,k,e=65537) :
@@ -19,22 +21,24 @@ class rsa :
         hex_value=plaintext.hex()
         message=int(hex_value,16)
         if message < n :
-            ciphertext=mod(message**e,n)
+            ciphertext=pow(message,e,n)
+            ciphertext=hex(ciphertext)[2:]
+            if len(ciphertext)%2!=0 :
+                ciphertext='0'+ciphertext
+            ciphertext=bytes.fromhex(ciphertext)
             return ciphertext
         else :
             return("error")
             
     def decrypt(self,ciphertext) :
         if ciphertext!="error" :
+            ciphertext=ciphertext.hex()
+            ciphertext=int(ciphertext,16)
             public_key=self.get_public_key()
             d=inverse_mod(self.e,(self.p-1)*(self.q-1))
-            message=mod(ciphertext**d,public_key[1])
+            message=pow(ciphertext,d,public_key[1])
             hex_message=hex(message)[2:]
+            if len(hex_message)%2!=0 :
+                hex_message='0'+hex_message
             byte_val=bytes.fromhex(hex_message)
             return byte_val
-        else :
-            return "error"
-            
- 
-        
-        
