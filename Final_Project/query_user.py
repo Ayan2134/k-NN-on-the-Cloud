@@ -23,9 +23,8 @@ class paillier :
         public_key=(self.n,self.g)
         return public_key
         
-    def encrypt(self,plaintext,public_key) : #plaintext in bytes
-        plaintext=plaintext.hex()
-        message=int(plaintext,16)
+    def encrypt(self,plaintext,public_key) : #plaintext in int
+        message=plaintext
         n=int(public_key[0])
         g=int(public_key[1])
         if message < n :
@@ -34,51 +33,39 @@ class paillier :
                 if int(gcd(r,n)) == 1:
                     break
             ciphertext=pow(g,message,n**2)*pow(r,n,n**2)
-            ciphertext=hex(ciphertext)[2:]
-            if len(ciphertext)%2!=0 :
-                ciphertext='0'+ciphertext
-            ciphertext=bytes.fromhex(ciphertext)
             return ciphertext
         
         else :
             return "error"
-    def decrypt(self,ciphertext) :
-        ciphertext=ciphertext.hex()
-        ciphertext=int(ciphertext,16)
+    def decrypt(self,ciphertext) : #ciphertext in int
         L_decrypt=(pow(ciphertext,self.prk,self.n**2)-1)//self.n
         de_message=mod(L_decrypt*self.meu , self.n)
-        hex_message=hex(de_message)[2:]
-        if len(hex_message)%2!=0 :
-            hex_message='0'+hex_message
-        byte_val=bytes.fromhex(hex_message)
-        return byte_val
+        return de_message
     
 HOST="127.0.0.1"
 PORT=3000
 with socket.socket(socket.AF_INET , socket.SOCK_STREAM) as s :
     s.connect((HOST,PORT))
-    k=50 #number of bits in the key 
+    k=5 #number of bits in the key 
     d=50
-    scale_pow=8
+    batch_size=4096
+    scale_pow=0
     cryptosystem=paillier(k)
     pub_key=cryptosystem.get_public_key()
-    query=np.random.randn(1,d)
+    query=np.random.randint(1,10,(1,d))
     scale_fac=10**scale_pow
     enc_query=[]
     
     for dim in query[0] : # encrypting each query dimension
-        num=str(int(dim*scale_fac))
-        num_byte=num.encode()
-        enc_dim=cryptosystem.encrypt(num_byte,pub_key)
-        enc_dim=enc_dim.hex()
-        enc_dim=int(enc_dim,16)
+        num=(int(dim*scale_fac))
+        enc_dim=cryptosystem.encrypt(num,pub_key)
         enc_query.append(enc_dim)
-        
+    print(enc_query)
     json_query=json.dumps(enc_query).encode()   
     s.sendall(json_query)
     status=s.recv(1024).decode()
-    enc_scale={"scale" : scale_fac}
-    enc_scale=json.dumps(enc_scale).encode()
-    s.sendall(enc_scale)
+    info={"scale" : scale_fac , "key" : pub_key}
+    info=json.dumps(info).encode()
+    s.sendall(info)
     if status == "True" :
         print("Query sent successfully")
