@@ -1,6 +1,6 @@
 import numpy as np
 m=10000
-d=50
+d=5
 with open('./Final_Project/database.txt','w') as data :
     for i in range(m) :
         point_vector=np.random.randint(-1000,1000,(d,1))

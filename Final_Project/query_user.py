@@ -47,12 +47,12 @@ PORT=3000
 with socket.socket(socket.AF_INET , socket.SOCK_STREAM) as s :
     s.connect((HOST,PORT))
     k=5 #number of bits in the key 
-    d=50
+    d=5
     batch_size=4096
     scale_pow=0
     cryptosystem=paillier(k)
     pub_key=cryptosystem.get_public_key()
-    query=np.random.randint(1,10,(1,d))
+    query=np.random.randint(-50,50,(1,d))
     scale_fac=10**scale_pow
     enc_query=[]
     
@@ -69,3 +69,29 @@ with socket.socket(socket.AF_INET , socket.SOCK_STREAM) as s :
     s.sendall(info)
     if status == "True" :
         print("Query sent successfully")
+    # do_query=b""
+    # while True :
+    #     query_packet= s.recv(batch_size)
+    #     if not query_packet :
+    #         print("hi")
+    #         break
+    #     do_query += query_packet
+    # do_query=do_query.decode()
+    # do_query=json.loads(do_query)
+    do_query=s.recv(64000).decode()
+    do_query=json.loads(do_query)
+    print(do_query)
+    print("Encrypted Query recieved from Data Owner")
+    
+    dec_query=[]
+    for point in do_query :
+        dec_query.append(int(cryptosystem.decrypt(int(point))))
+    print(dec_query)
+    with socket.socket(socket.AF_INET , socket.SOCK_STREAM) as cloud :
+        HOST_cloud = "127.0.0.1"
+        PORT_cloud = 3001
+        cloud.connect((HOST_cloud,PORT_cloud))
+        cloud_query=json.dumps(dec_query).encode()
+        cloud.sendall(cloud_query)
+        print("Sent query to cloud")
+        

@@ -58,9 +58,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.listen()
     print("____Data Owner Server On____")
     m = 10000
-    d = 50
-    c = 5
-    e = 4
+    d = 5
+    c = 2
+    e = 2
     k = 5  # bits in paillier
     batch_size=4096
     n = d + 1 + c + e
@@ -77,12 +77,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             conn.send(b'True')
             user = conn.recv(1024).decode()
             user = json.loads(user)
-            matrix_m = np.random.randint(-5, 5, (n, n))
+            matrix_m = np.random.randint(-2, 4, (n, n))
             s_vector = np.random.randint(-30, 30, (1, d + 1))
             t_vector = np.random.randint(-20, 20, (1, c))
             inverse_m = np.linalg.inv(matrix_m)
             final_data = []
-            
+
             for p in database:
                 v_vector = np.random.randint(1, 5, (1, e))
                 p_dash = np.concatenate((s_vector[0, :d].reshape(1, d) - 2 * p,
@@ -103,7 +103,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     offset+=len(data)
             final_data = np.vstack(final_data).reshape(m, 1, n)
             print(final_data.shape)
-            r_vector = np.random.randint(1, 5, (1, c))
+            r_vector = np.random.randint(-1, 5, (1, c))
             ek0 = cryptosystem.encrypt(0, user['key'])
             zero_vec = np.zeros((1, e))
             one_vec = np.ones((1, 1))
@@ -131,6 +131,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                         psi = b * matrix_m[i][j] * r_vector[0][omega]
                         A[i] = A[i] * cryptosystem.encrypt(psi, user["key"])
             print(A)
+            # offset=0
+            query_send=A.tolist()
+            # json_query_send=json.dumps(query_send).encode()
+            # while offset < len(json_query_send) :
+            #     query_packet=json_query_send[offset : (offset+batch_size)]
+            #     conn.sendall(query_packet)
+            #     print("hello")
+            #     offset+=len(query_packet)
+            query_send=json.dumps(query_send).encode()
+            conn.sendall(query_send)
     except Exception as e:
         print("!!!   Request not Completed   !!!")
         print(f"An error occured : {e}")
