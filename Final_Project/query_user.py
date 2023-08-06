@@ -3,6 +3,10 @@ import numpy as np
 from sage.all import*
 import random
 import json
+import sys
+
+sys.set_int_max_str_digits(0)
+
 class paillier :
     def __init__ (self,k) :
         while True :
@@ -15,7 +19,10 @@ class paillier :
         self.n=int(self.p*self.q)
         self.prk=int(LCM(self.p-1,self.q-1))
         while True :
-            self.g=int(random.randint(1,(self.n**2)-1))
+            while True :
+                self.g = int(random.randint(1, (self.n**2) - 1))
+                if int(gcd(self.g,self.n))==1 :
+                    break
             L=int((pow(self.g,self.prk,self.n**2)-1)//self.n)
             if int(gcd(L,self.n))==1 :
                 break
@@ -47,12 +54,12 @@ PORT=3000
 with socket.socket(socket.AF_INET , socket.SOCK_STREAM) as s :
     s.connect((HOST,PORT))
     k=5 #number of bits in the key 
-    d=5
+    d=50
     batch_size=4096
     scale_pow=0
     cryptosystem=paillier(k)
     pub_key=cryptosystem.get_public_key()
-    query=np.random.randint(-50,50,(1,d))
+    query=np.random.randint(-10,10,(1,d))
     scale_fac=10**scale_pow
     enc_query=[]
     
@@ -60,38 +67,34 @@ with socket.socket(socket.AF_INET , socket.SOCK_STREAM) as s :
         num=(int(dim*scale_fac))
         enc_dim=cryptosystem.encrypt(num,pub_key)
         enc_query.append(enc_dim)
-    print(enc_query)
+    print("Waiting for Response from Data Owner.......")
     json_query=json.dumps(enc_query).encode()   
     s.sendall(json_query)
     status=s.recv(1024).decode()
     info={"scale" : scale_fac , "key" : pub_key}
     info=json.dumps(info).encode()
     s.sendall(info)
+    print("Query sent successfully to Data Owner")
     if status == "True" :
-        print("Query sent successfully")
-    # do_query=b""
-    # while True :
-    #     query_packet= s.recv(batch_size)
-    #     if not query_packet :
-    #         print("hi")
-    #         break
-    #     do_query += query_packet
-    # do_query=do_query.decode()
-    # do_query=json.loads(do_query)
-    do_query=s.recv(64000).decode()
-    do_query=json.loads(do_query)
-    print(do_query)
-    print("Encrypted Query recieved from Data Owner")
-    
-    dec_query=[]
-    for point in do_query :
-        dec_query.append(int(cryptosystem.decrypt(int(point))))
-    print(dec_query)
-    with socket.socket(socket.AF_INET , socket.SOCK_STREAM) as cloud :
-        HOST_cloud = "127.0.0.1"
-        PORT_cloud = 3001
-        cloud.connect((HOST_cloud,PORT_cloud))
-        cloud_query=json.dumps(dec_query).encode()
-        cloud.sendall(cloud_query)
-        print("Sent query to cloud")
+        print("Query Request Approved from Data Owner")
+        do_query=s.recv(64000).decode()
+        do_query=json.loads(do_query)
+        print("Encrypted Query recieved from Data Owner")
+        
+        dec_query=[]
+        for point in do_query :
+            dec_query.append(int(cryptosystem.decrypt(int(point))))
+        with socket.socket(socket.AF_INET , socket.SOCK_STREAM) as cloud :
+            HOST_cloud = "127.0.0.1"
+            PORT_cloud = 3001 # port of cloud server for query user
+            cloud.connect((HOST_cloud,PORT_cloud))
+            cloud_query=json.dumps(dec_query).encode()
+            cloud.sendall(cloud_query)
+            print("Sent query to cloud")
+            index = cloud.recv(6400).decode()
+            index = json.loads(index)
+            print("\n\tRequested Indexes from the Database :",index)
+    else :
+        print("!!!! Your Query Request has been declined by Data Owner !!!!")
+        
         
