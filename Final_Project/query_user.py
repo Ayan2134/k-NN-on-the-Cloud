@@ -58,8 +58,11 @@ with socket.socket(socket.AF_INET , socket.SOCK_STREAM) as s :
     batch_size=4096
     scale_pow=0
     cryptosystem=paillier(k)
-    pub_key=cryptosystem.get_public_key()
-    query=np.random.randint(-10,10,(1,d))
+    pub_key=cryptosystem.get_public_key() 
+    # query=np.random.randint(-10,10,(1,d))  # uncomment this line and comment the below part if want automatic query
+    print(f"Enter {d} values for the query point ranging from -10 to 10 both inclusive :")
+    query=[x for x in input().split()][:d]
+    query = np.array(query).reshape(1,d)
     scale_fac=10**scale_pow
     enc_query=[]
     
